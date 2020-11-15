@@ -1,6 +1,7 @@
 package com.example.temperaturelog
 
 import android.os.Bundle
+import android.os.Handler
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -9,11 +10,14 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonIOException
 import com.google.gson.JsonSyntaxException
 import com.google.gson.reflect.TypeToken
+import kotlinx.android.synthetic.main.activity_main.*
 import java.net.HttpURLConnection
 
 class MainActivity : AppCompatActivity() {
 
-    lateinit var rvTemperatures: RecyclerView
+    private lateinit var mHandler: Handler
+    private lateinit var mRunnable:Runnable
+    private lateinit var rvTemperatures: RecyclerView
     var values = ArrayList<Temperature>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,6 +32,36 @@ class MainActivity : AppCompatActivity() {
 
         val user = intent.getStringExtra("username")
         val token = intent.getStringExtra("token")
+
+        auth(user, token, adapter)
+
+        mHandler = Handler()
+
+        swipeRefreshLayout.setOnRefreshListener {
+            // Initialize a new Runnable
+            mRunnable = Runnable {
+                auth(user, token, adapter)
+
+                swipeRefreshLayout.isRefreshing = false
+            }
+            // Execute the task after specified time
+            mHandler.postDelayed(
+                mRunnable, 500.toLong()
+            )
+        }
+
+        swipeRefreshLayout.setColorSchemeResources(
+            android.R.color.holo_red_light,
+            android.R.color.holo_orange_dark,
+            android.R.color.holo_orange_light,
+            android.R.color.holo_green_light,
+            android.R.color.holo_blue_bright,
+            android.R.color.holo_blue_dark,
+            android.R.color.holo_purple
+        )
+    }
+
+    private fun auth(user: String, token:String, adapter:RecyclerAdapter){
         val handler: RequestHandler = RequestHandler()
         handler.httpMethod = "GET"
         handler.urlResource = "$user/measurements"
@@ -52,7 +86,7 @@ class MainActivity : AppCompatActivity() {
                     list.add(obj)
                 }
                 println(list.size)
-                adapter.values = list
+                adapter.setValues(list)
                 runOnUiThread { adapter.notifyDataSetChanged() }
             }
 
@@ -76,6 +110,7 @@ class MainActivity : AppCompatActivity() {
                 applicationContext,
                 msg, Toast.LENGTH_LONG
             )
+
             toast.show()
         }
     }

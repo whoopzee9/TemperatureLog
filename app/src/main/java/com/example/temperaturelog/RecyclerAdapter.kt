@@ -6,18 +6,24 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import java.text.SimpleDateFormat
 
-class RecyclerAdapter(var values: List<Temperature>): RecyclerView.Adapter<RecyclerViewHolder>() {
+class RecyclerAdapter(private var values: ArrayList<Temperature>): RecyclerView.Adapter<RecyclerViewHolder>() {
+
+    override fun getItemCount(): Int {
+        return this.values.size
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerViewHolder {
         val itemView = LayoutInflater.from(parent.context).inflate(R.layout.row_layout, parent, false)
         return RecyclerViewHolder(itemView)
     }
 
-    override fun getItemCount(): Int {
-        return values.size
+    override fun onBindViewHolder(holder: RecyclerViewHolder, position: Int) {
+        holder.setTimeText(SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").parse(values[position].time).toString())
+        holder.setTempText(values[position].temp.toString())
     }
 
-    override fun onBindViewHolder(holder: RecyclerViewHolder, position: Int) {
-        holder.time.text = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").parse(values[position].time).toString()
-        holder.temp.text = values[position].temp.toString()
+    fun setValues(value: ArrayList<Temperature>){
+        this.values.clear()
+        this.values.addAll(value)
     }
 }
