@@ -11,9 +11,9 @@ class RecyclerViewHolder(itemView: View) : ViewHolder(itemView) {
 
     fun setTempText(str: String){
         temp.text = str
-        if (str.toDouble() > 37.3) {
+        if (str.toDouble() >= 37.5) {
             temp.setTextColor(Color.RED)
-        } else if (str.toDouble() > 36.9) {
+        } else if (str.toDouble() >= 37) {
             temp.setTextColor(Color.YELLOW)
         } else {
             temp.setTextColor(Color.GREEN)
